@@ -21,7 +21,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector3(input.x, rb.linearVelocity.y, input.y) * speed;
+        rb.linearVelocity = (transform.forward * input.y + transform.right * input.x) * speed;
     }
 
     public void Move(InputAction.CallbackContext context){
