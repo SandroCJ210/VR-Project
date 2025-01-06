@@ -47,10 +47,10 @@ public class PishtacoAI : MonoBehaviour
         var searchLastKnownPosition = new ActionNode(SearchLastKnownPosition);
         var patrol = new ActionNode(Patrol);
 
-        var alertSequence = new Sequence(new List<Node> { detectPlayer, chasePlayer });
-        var searchSequence = new Sequence(new List<Node> { searchLastKnownPosition });
+        var alertSequence = new SequenceNode(new List<Node> { detectPlayer, chasePlayer });
+        var searchSequence = new SequenceNode(new List<Node> { searchLastKnownPosition });
 
-        return new Selector(new List<Node>
+        return new SelectorNode(new List<Node>
         {
             alertSequence,
             searchSequence,
