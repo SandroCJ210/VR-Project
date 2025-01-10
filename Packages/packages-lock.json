@@ -79,16 +79,6 @@
         "com.unity.testtools.codecoverage": "1.2.6"
       }
     },
-    "com.unity.feature.vr": {
-      "version": "1.0.1",
-      "depth": 0,
-      "source": "builtin",
-      "dependencies": {
-        "com.unity.xr.interaction.toolkit": "3.0.5",
-        "com.unity.xr.oculus": "4.3.0",
-        "com.unity.xr.openxr": "1.13.0"
-      }
-    },
     "com.unity.ide.rider": {
       "version": "3.0.31",
       "depth": 1,
@@ -340,8 +330,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.interaction.toolkit": {
-      "version": "3.0.5",
-      "depth": 1,
+      "version": "3.0.7",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.ugui": "1.0.0",
@@ -357,7 +347,7 @@
     },
     "com.unity.xr.legacyinputhelpers": {
       "version": "2.1.11",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.vr": "1.0.0",
@@ -389,18 +379,9 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.xr.oculus": {
-      "version": "4.3.0",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.xr.management": "4.4.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.xr.openxr": {
-      "version": "1.13.0",
-      "depth": 1,
+      "version": "1.13.2",
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.inputsystem": "1.6.3",
