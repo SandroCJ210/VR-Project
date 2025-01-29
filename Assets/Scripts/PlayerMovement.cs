@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed;
+    [SerializeField] private bool bCanMove = true;
     private Vector2 _input;
     private PlayerInput _playerInput;
     private Rigidbody _rigidbody;
@@ -16,6 +17,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (!bCanMove)
+            return;
         GetInput();
     }
 
