@@ -2,14 +2,10 @@ using System.Collections.Generic;
 
 public class SelectorNode : Node
 {
-    private List<Node> _children = new();
-
-    public SelectorNode() { 
-        nodeName = "Selector";
-        nodeType = typeof(SelectorNode);
+    public SelectorNode()
+    {
+        _children = new List<Node>();
     }
-
-    public void AddChild(Node child) => _children.Add(child);
 
     public SelectorNode(List<Node> children)
     {

@@ -2,13 +2,10 @@ using System.Collections.Generic;
 
 public class SequenceNode : Node
 {
-    private List<Node> _children = new();
-    public SequenceNode() { 
-        nodeName = "Sequence";
-        nodeType = typeof(SequenceNode);
+    public SequenceNode()
+    {
+        _children = new List<Node>();
     }
-    public void AddChild(Node child) => _children.Add(child);
-
     public SequenceNode(List<Node> children)
     {
         _children = children;
