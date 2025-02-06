@@ -1,13 +1,15 @@
+using System;
+
 public class ActionNode : Node
 {
-    private System.Func<State> _action;
+    private Func<State> _action;
 
-    public ActionNode(System.Func<State> action)
+    public ActionNode(Func<State> action)
     {
         _action = action;
     }
 
-    public void SetAction(System.Func<State> action)
+    public void SetAction(Func<State> action)
     {
         _action = action;
     }
