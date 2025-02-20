@@ -12,6 +12,10 @@ public class KharisiriController : MonoBehaviour
     Dictionary<int, List<int>> _roomPatrolPoints;
     Transform[] _patrolPoints;
 
+    [SerializeField] private float _patrolSpeed = 2f;
+    [SerializeField] private float _chaseSpeed = 5f;
+    [SerializeField] private float _searchSpeed = 3f;
+
     void Start()
     {
         ConfiguratePath();
@@ -25,6 +29,7 @@ public class KharisiriController : MonoBehaviour
         while (true)
         {
             _behaviorTree.Evaluate();
+            UpdateSpeed();
             yield return new WaitForSeconds(0.5f);
         }
     }
@@ -77,5 +82,27 @@ public class KharisiriController : MonoBehaviour
         _brain.SetData("SuspectAreaDelayTime", 0f);
         _brain.SetData("Motivation", Motivation.Patrol);
         _brain.SetData("NavMeshAgent", _agent);
+
+        _brain.SetData("PatrolSpeed", _patrolSpeed);
+        _brain.SetData("ChaseSpeed", _chaseSpeed);
+        _brain.SetData("SearchSpeed", _searchSpeed);
+
+        UpdateSpeed();
+    }
+
+    void UpdateSpeed()
+    {
+        if (_brain.GetData<bool>("PlayerDetected"))
+        {
+            _agent.speed = _brain.GetData<float>("ChaseSpeed");
+        }
+        else if (_brain.GetData<bool>("HasSeenPlayer"))
+        {
+            _agent.speed = _brain.GetData<float>("SearchSpeed");
+        }
+        else
+        {
+            _agent.speed = _brain.GetData<float>("PatrolSpeed");
+        }
     }
 }

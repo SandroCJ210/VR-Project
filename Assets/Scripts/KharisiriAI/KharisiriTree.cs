@@ -6,6 +6,7 @@ public class KharisiriTree
 {
     Node _rootNode;
     KharisiriBrain _brain;
+    bool needsRandomRoom = false;
 
     public KharisiriTree(string nodeType, KharisiriBrain brain)
     {
@@ -24,61 +25,76 @@ public class KharisiriTree
     Node PatrolMotivation()
     {
         Node sequence = new SequenceNode();
-        ActionNode defineStartRoute = new(() =>
-        {
-            var patrolRoute = _brain.GetData<Queue<int>>("PatrolRoute");
-            if (patrolRoute.Count == 3)
-            {
-                return State.Success;
-            }
 
-            while (patrolRoute.Count < 3)
-            {
-                int nextRoom = GetNextRoom();
-                patrolRoute.Enqueue(nextRoom);
-            }
-            Debug.Log("Patrol Route Defined");
-            Debug.Log("Patrol Route: " + string.Join(", ", patrolRoute));
+        ActionNode calculateNextRoom = new(() =>
+        {
+            if (_brain.GetData<Queue<int>>("PatrolRoute").Count > 0) return State.Success;
+            Debug.Log("Calculating Next Room...");
+            int nextRoom = GetNextRoom();
+            if (nextRoom == -1) return State.Failure;
+
+            var patrolRoute = _brain.GetData<Queue<int>>("PatrolRoute");
+            patrolRoute.Enqueue(nextRoom);
             _brain.SetData("PatrolRoute", patrolRoute);
+
             return State.Success;
         });
-        ActionNode investigateArea = new(() =>
+
+        Node investigateAreaSequence = new SequenceNode();
+
+        ActionNode walkToNextRoom = new(() =>
         {
+            Debug.Log("Walking to next room...");
             var navMeshAgent = _brain.GetData<NavMeshAgent>("NavMeshAgent");
-            int nextNode = _brain.GetData<Queue<int>>("PatrolRoute").Peek();
+            var patrolRoute = _brain.GetData<Queue<int>>("PatrolRoute");
             Transform[] patrolPoints = _brain.GetData<Transform[]>("PatrolPoints");
+
+            if (patrolRoute.Count == 0)
+                return State.Failure;
+
+            int nextNode = patrolRoute.Peek();
             navMeshAgent.SetDestination(patrolPoints[nextNode].position);
-            
-            if(Vector3.Distance(navMeshAgent.transform.position, patrolPoints[nextNode].position) < 1f)
+
+            if (Vector3.Distance(navMeshAgent.transform.position, patrolPoints[nextNode].position) < 1f)
             {
-                _brain.GetData<Queue<int>>("PatrolRoute").Dequeue();
+                patrolRoute.Dequeue();
+                _brain.SetData("PatrolRoute", patrolRoute);
                 return State.Success;
             }
             return State.Running;
         });
+
+        ActionNode checkForPlayer = new(() =>
+        {
+            if (_brain.GetData<bool>("CanSeePlayer"))
+            {
+                Debug.Log("Player detected! Changing behavior...");
+                _brain.SetData("Motivation", Motivation.Investigate);
+                return State.Success;
+            }
+            return State.Failure;
+        });
+
         ActionNode getNextRoom = new(() =>
         {
             var patrolRoute = _brain.GetData<Queue<int>>("PatrolRoute");
-            if (patrolRoute.Count == 3)
+            if (patrolRoute.Count == 0)
             {
-                return State.Success;
+                patrolRoute.Enqueue(GetNextRoom());
+                _brain.SetData("PatrolRoute", patrolRoute);
             }
-
-            while (patrolRoute.Count < 3)
-            {
-                int nextRoom = GetNextRoom();
-                patrolRoute.Enqueue(nextRoom);
-            }
-            Debug.Log("Patrol Route Defined");
-            Debug.Log("Patrol Route: " + string.Join(", ", patrolRoute));
-            _brain.SetData("PatrolRoute", patrolRoute);
             return State.Success;
         });
-        sequence.AddChild(defineStartRoute);
-        sequence.AddChild(investigateArea);
+
+        investigateAreaSequence.AddChild(walkToNextRoom);
+        investigateAreaSequence.AddChild(checkForPlayer);
+
+        sequence.AddChild(calculateNextRoom);
+        sequence.AddChild(investigateAreaSequence);
         sequence.AddChild(getNextRoom);
+
         return new ConditionalNode(() =>
-            _brain.GetData<Motivation>("CurrentMotivation") == Motivation.Patrol
+            _brain.GetData<Motivation>("Motivation") == Motivation.Patrol
         , sequence);
     }
 
@@ -87,28 +103,24 @@ public class KharisiriTree
         int actualRoom = _brain.GetData<int>("CurrentRoom");
         int actualNode = _brain.GetData<int>("CurrentPatrolPoint");
         bool isInRoom = _brain.GetData<bool>("IsInRoom");
-        Transform[] patrolPoints = _brain.GetData<Transform[]>("PatrolPoints");
         Dictionary<int, List<int>> roomPatrolPoints = _brain.GetData<Dictionary<int, List<int>>>("RoomPatrolPoints");
+
         int childsNodes = roomPatrolPoints[actualRoom].Count;
-        if (childsNodes == 1)
+        if (childsNodes == 1 || isInRoom)
         {
-            actualRoom++;
-            actualNode = roomPatrolPoints[actualRoom][0];
+            actualRoom = needsRandomRoom ? Random.Range(0, roomPatrolPoints.Count) : actualRoom + 1;
+            Debug.Log("Getting next room " + actualRoom);
+
+            actualNode = needsRandomRoom ? Random.Range(0, roomPatrolPoints[actualRoom].Count) : roomPatrolPoints[actualRoom][0];
+            
             isInRoom = false;
+            
+            needsRandomRoom = actualRoom >= roomPatrolPoints.Count - 1;
         }
         else
         {
-            if (isInRoom)
-            {
-                actualRoom++;
-                actualNode = roomPatrolPoints[actualRoom][0];
-                isInRoom = false;
-            }
-            else
-            {
-                actualNode++;
-                isInRoom = true;
-            }
+            actualNode++;
+            isInRoom = true;
         }
         _brain.SetData("CurrentRoom", actualRoom);
         _brain.SetData("CurrentPatrolPoint", actualNode);
