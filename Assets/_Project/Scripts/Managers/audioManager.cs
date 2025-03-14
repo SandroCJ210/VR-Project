@@ -41,7 +41,7 @@ public class audioManager : MonoBehaviour
     }
     private void Start()
     {
-        PlayBGM("Menu");
+        PlayBGM("Principal");
     }
 
     public void Play(string name)
@@ -109,6 +109,35 @@ public class audioManager : MonoBehaviour
         newBGM.source.volume = 0.5f;
         PlayBGM(newTheme);
     }
+    
+    public void PlayAtPosition(string name, Vector3 position)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        if (s == null)
+        {
+            Debug.LogError("No se encontró el audio!");
+            return;
+        }
+        
+        // AudioSource.PlayClipAtPoint(s.clip, position);
+        
+        
+        GameObject temp = new GameObject("TempAudio_" + name);
+        temp.transform.position = position;
+        AudioSource tempSource = temp.AddComponent<AudioSource>();
+        
+        tempSource.clip = s.clip;
+        tempSource.volume = effectsMusicVolume;
+        tempSource.pitch = s.pitch;
+        tempSource.loop = false;
+        tempSource.spatialBlend = 1f;
+        
+        tempSource.Play();
+
+        Destroy(temp, s.clip.length);
+
+    }
+    
     public void Stop()
     {
         actualBGM.source.Stop();
