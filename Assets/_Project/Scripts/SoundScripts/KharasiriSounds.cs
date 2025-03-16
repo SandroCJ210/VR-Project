@@ -17,8 +17,7 @@ public class KharasiriSounds : MonoBehaviour
     
     private AudioClip[] _growlClips;
     private AudioSource _audioSource;
-    private float _nextGrowlTime;
-    
+    private bool bIsUpdating = false;
     
 
     void Start()
@@ -26,11 +25,17 @@ public class KharasiriSounds : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
         
         _growlClips  = Resources.LoadAll<AudioClip>("Sounds/Kharisiri_Growls");
+    }
+
+    public void StartGrowling()
+    {
         ScheduleNextGrowl();
+        bIsUpdating = true;
     }
 
     void Update()
     {
+        if (!bIsUpdating) return;
         _growlTimer += Time.deltaTime;
         if (_growlTimer >= _currentInterval && !_audioSource.isPlaying)
         {

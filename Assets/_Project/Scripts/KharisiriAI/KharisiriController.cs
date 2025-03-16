@@ -21,6 +21,10 @@ public class KharisiriController : MonoBehaviour
         ConfiguratePath();
         SetBrain();
         _behaviorTree = new("Selector", _brain);
+    }
+
+    public void StartBehaviorTree()
+    {
         StartCoroutine(RunBehaviorTree());
     }
 
@@ -38,7 +42,7 @@ public class KharisiriController : MonoBehaviour
     {
         _agent = GetComponent<NavMeshAgent>();
 
-        GameObject patrolPointsParent = GameObject.Find("PatrolNodes");
+        GameObject patrolPointsParent = GameObject.Find("AI").transform.GetChild(1).gameObject;
 
         if (patrolPointsParent != null)
         {
